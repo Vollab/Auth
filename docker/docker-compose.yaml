@@ -1,0 +1,30 @@
+services:
+  auth_redis:
+    image: redis:alpine
+
+  auth:
+    build:
+      dockerfile: ./auth/docker/Dockerfile
+    ports:
+      - 3001:3001
+    environment:
+      - SERVER_PORT=3001
+      - PG_URL=postgres://vollab:mypass@db/vollab
+      - PG_HOST=db
+      - PG_DB=vollab
+      - PG_USER=vollab
+      - PG_PASS=mypass
+      - REDIS_HOST=auth_redis
+      - NATS_HOST=nats
+      - JWT_KEY=jwt-key
+      - JWT_ACCESS_TTL=10m
+      - JWT_REFRESH_TTL=1M
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./auth/migrations:/app/auth/migrations
+      - ./auth/src:/app/auth/src
+      - ./common:/app/common
+    depends_on:
+      - auth_redis
+      - nats
+      - db
