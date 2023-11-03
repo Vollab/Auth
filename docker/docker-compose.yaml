@@ -17,8 +17,8 @@ services:
       - REDIS_HOST=auth_redis
       - NATS_HOST=nats
       - JWT_KEY=jwt-key
-      - JWT_ACCESS_TTL=10m
-      - JWT_REFRESH_TTL=1M
+      - JWT_ACCESS_TTL=1h
+      - JWT_REFRESH_TTL=15d
       - LOG_LEVEL=DEBUG
     volumes:
       - ./auth/migrations:/app/auth/migrations
