@@ -1,6 +1,5 @@
 import { app } from './app'
 
-import { orderer_created_consumer, orderer_updated_consumer, candidate_created_consumer } from 'common/global/consumers'
 import { logger, checkEnv, database, redis } from 'common/services'
 import { nats_stream } from 'common/services/nats'
 

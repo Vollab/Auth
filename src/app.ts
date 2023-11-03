@@ -2,7 +2,7 @@ import cookie_parser from 'cookie-parser'
 import express from 'express'
 import 'express-async-errors'
 
-import { refresh_router, sign_up_router, sign_in_router, sign_out_router } from './routes'
+import * as routes from './routes'
 
 import { error_handler } from 'common/middlewares'
 import { NotFoundError } from 'common/errors'
@@ -13,7 +13,7 @@ app.set('trust proxy', true)
 
 app.use(express.json(), cookie_parser())
 
-app.use(refresh_router, sign_up_router, sign_in_router, sign_out_router)
+app.use(Object.values(routes))
 
 app.all('*', () => {
 	throw new NotFoundError('Route not found')
