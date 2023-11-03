@@ -1,7 +1,7 @@
-import { database } from 'common/services'
 import { User } from './user'
 
-type PartialOmit<T extends object, U extends keyof T> = { [K in Exclude<keyof T, U>]?: T[K] }
+import { PartialOmit } from 'common/types/utility'
+import { database } from 'common/services'
 
 export interface Candidate extends User {
 	id: string

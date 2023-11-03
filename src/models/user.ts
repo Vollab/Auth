@@ -23,10 +23,22 @@ class UserModel {
 				auth.user
 			WHERE
 				email = $1
-			LIMIT
-				1
 			;`,
 			[email]
+		)
+	}
+
+	async findByPhone(phone: User['phone']) {
+		return this.db.query<User>(
+			`
+			SELECT
+				*
+			FROM
+				auth.user
+			WHERE
+				phone = $1
+			;`,
+			[phone]
 		)
 	}
 }
