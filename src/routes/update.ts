@@ -4,21 +4,22 @@ import express from 'express'
 import { candidate_updated_pub, orderer_updated_pub } from '../events/pub'
 import { candidate_model, orderer_model } from '../models'
 
-import { validate_request } from 'common/middlewares'
+import { require_auth, validate_request } from 'common/middlewares'
 
 const router = express.Router()
 
 router.patch(
-	'/api/orderers/:id',
-	param('id', 'Id must be a valid UUID').isUUID(),
-	body('name', 'Name must be between 5 and 30 characters').isLength({ min: 5, max: 30 }).optional(),
+	'/api/orderers',
+	require_auth(['orderer']),
+	body('name', 'name must be between 5 and 30 characters').isLength({ min: 5, max: 30 }).optional(),
 	body('biography').optional(),
 	validate_request,
 	async (req, res) => {
+		const id = req.current_user!.user_id
 		const { name, biography } = req.body
-		const { id } = req.params
 
 		const [orderer] = await orderer_model.update(id, { name, biography })
+		delete (orderer as any).password
 
 		await orderer_updated_pub.publish({ id, name, biography })
 
@@ -27,16 +28,17 @@ router.patch(
 )
 
 router.patch(
-	'/api/candidates/:id',
-	param('id', 'Id must be a valid UUID').isUUID(),
-	body('name', 'Name must be between 5 and 30 characters').isLength({ min: 5, max: 30 }).optional(),
-	body('biography', 'biography must not be empty').optional(),
+	'/api/candidates',
+	require_auth(['candidate']),
+	body('name', 'name must be between 5 and 30 characters').isLength({ min: 5, max: 30 }).optional(),
+	body('biography').optional(),
 	validate_request,
 	async (req, res) => {
+		const id = req.current_user!.user_id
 		const { name, biography } = req.body
-		const { id } = req.params
 
 		const [candidate] = await candidate_model.update(id, { name, biography })
+		delete (candidate as any).password
 
 		await candidate_updated_pub.publish({ id, name, biography })
 
