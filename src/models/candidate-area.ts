@@ -51,6 +51,7 @@ class CandidateAreaModel {
 				auth.candidate_area
 			WHERE
         candidate_id = $1
+			AND
         activity_area_id = $2
 			RETURNING
 				*
