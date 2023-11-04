@@ -1,16 +1,23 @@
-import { database } from 'common/services'
 import { User } from './user'
 
-type PartialOmit<T extends object, U extends keyof T> = { [K in Exclude<keyof T, U>]?: T[K] }
+import { PartialOmit } from 'common/types/utility'
+import { database } from 'common/services'
 
-export interface Orderer extends User {
-	id: string
-	updated_at: string
-	created_at: string
-}
+export interface Orderer extends User {}
 
 class OrdererModel {
 	constructor(private db: typeof database) {}
+
+	async findAll() {
+		return this.db.query<Orderer>(
+			`
+			SELECT
+				*
+			FROM
+				auth.orderer
+			;`
+		)
+	}
 
 	async findByEmail(email: Orderer['email']) {
 		return this.db.query<Orderer>(
@@ -21,8 +28,6 @@ class OrdererModel {
 				auth.orderer
 			WHERE
 				email = $1
-			LIMIT
-				1
 			;`,
 			[email]
 		)
@@ -44,8 +49,9 @@ class OrdererModel {
 		)
 	}
 
-	async update(id: Orderer['id'], orderer: PartialOmit<Orderer, 'id'>) {
+	async update(id: Orderer['id'], orderer: PartialOmit<Orderer, 'id' | 'updated_at' | 'created_at'>) {
 		const entries = Object.entries(orderer).filter(e => e[1])
+		if (entries.length === 0) return []
 		const keys = entries.map((e, i) => `${e[0]} = $${i + 2}`)
 		const values = entries.map(e => e[1])
 
@@ -54,7 +60,7 @@ class OrdererModel {
 			UPDATE
 				auth.orderer
 			SET
-				${keys.join(', ')}${keys.length !== 0 ? ',' : ''} updated_at = now() at time zone 'utc'
+				${keys.join(', ')}
 			WHERE
 				id = $1
 			RETURNING
