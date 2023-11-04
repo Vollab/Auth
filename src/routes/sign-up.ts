@@ -1,11 +1,11 @@
 import { body } from 'express-validator'
 import express from 'express'
 
-import { candidate_model, orderer_model, user_model, candidate_area_model } from '../models'
 import { candidate_created_pub, orderer_created_pub } from '../events/pub'
+import { candidate_model, orderer_model, user_model } from '../models'
 import { Password } from '../services'
 
-import { transaction, validate_request } from 'common/middlewares'
+import { validate_request } from 'common/middlewares'
 
 const isEmailNotInUse = async (value: string) => {
 	const [has_user] = await user_model.findByEmail(value)
@@ -35,6 +35,7 @@ router.post(
 		const hash = await Password.to_hash(password)
 
 		const [orderer] = await orderer_model.insert({ name, email, biography, phone, password: hash })
+		delete (orderer as any).password
 
 		await orderer_created_pub.publish({ id: orderer.id, email, name })
 
@@ -50,21 +51,15 @@ router.post(
 		.matches(/^\([1-9]{2}\) (?:[2-8]|9\d)\d{3}\-\d{4}$/)
 		.custom(isPhoneNotInUse),
 	body('biography', 'biography must not be empty').notEmpty(),
-	// body('area_ids', 'area_ids must be an array with at least one id').isArray({ min: 1 }),
-	// body('area_ids.*', 'id of area must be an uuid').isUUID().notEmpty(),
 	body('password', 'Password not strong enough').isStrongPassword(),
 	validate_request,
-	// transaction,
 	async (req, res) => {
-		const { name, email, biography, phone, area_ids, password } = req.body
+		const { name, email, biography, phone, password } = req.body
 
 		const hash = await Password.to_hash(password)
 
 		const [candidate] = await candidate_model.insert({ name, email, biography, phone, password: hash })
-
-		// const candidate_areas = area_ids.map((area_id: string) => ({ candidate_id: candidate.id, activity_area_id: area_id }))
-
-		// await candidate_area_model.insert(candidate_areas)
+		delete (candidate as any).password
 
 		await candidate_created_pub.publish({ id: candidate.id, email, name })
 
