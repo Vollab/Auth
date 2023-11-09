@@ -50,7 +50,7 @@ class OrdererModel {
 	}
 
 	async update(id: Orderer['id'], orderer: PartialOmit<Orderer, 'id' | 'updated_at' | 'created_at'>) {
-		const entries = Object.entries(orderer).filter(e => e[1])
+		const entries = Object.entries(orderer)
 		if (entries.length === 0) return []
 		const keys = entries.map((e, i) => `${e[0]} = $${i + 2}`)
 		const values = entries.map(e => e[1])
