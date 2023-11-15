@@ -34,12 +34,16 @@ router.post(
 
 		const hash = await Password.to_hash(password)
 
-		const [orderer] = await orderer_model.insert({ name, email, biography, phone, password: hash })
-		delete (orderer as any).password
+		const [user] = await user_model.insert({ name, email, biography, phone, password: hash })
+		const [orderer] = await orderer_model.insert({ id: user.id })
 
-		await orderer_created_pub.publish({ id: orderer.id, email, name })
+		const full_orderer = { ...user, ...orderer }
+		const { id, created_at, updated_at } = full_orderer
+		delete (full_orderer as any).password
 
-		res.status(201).json({ orderer })
+		await orderer_created_pub.publish({ id, email, name, created_at, updated_at })
+
+		res.status(201).json({ orderer: full_orderer })
 	}
 )
 
@@ -58,12 +62,16 @@ router.post(
 
 		const hash = await Password.to_hash(password)
 
-		const [candidate] = await candidate_model.insert({ name, email, biography, phone, password: hash })
-		delete (candidate as any).password
+		const [user] = await user_model.insert({ name, email, biography, phone, password: hash })
+		const [candidate] = await candidate_model.insert({ id: user.id })
 
-		await candidate_created_pub.publish({ id: candidate.id, email, name })
+		const full_candidate = { ...user, ...candidate }
+		const { id, created_at, updated_at } = full_candidate
+		delete (full_candidate as any).password
 
-		res.status(201).json({ candidate })
+		await candidate_created_pub.publish({ id, email, name, created_at, updated_at })
+
+		res.status(201).json({ candidate: full_candidate })
 	}
 )
 

@@ -1,7 +1,7 @@
 import { body } from 'express-validator'
 import express from 'express'
 
-import { candidate_model, orderer_model } from '../models'
+import { full_candidate_model, full_orderer_model } from '../models'
 import { Password, Session } from '../services'
 
 import { validate_request } from 'common/middlewares'
@@ -17,7 +17,7 @@ router.post(
 	async (req, res) => {
 		const { email, password } = req.body
 
-		const [orderer] = await orderer_model.findByEmail(email)
+		const [orderer] = await full_orderer_model.findByEmail(email)
 
 		if (!orderer || !(await Password.compare(orderer.password, password))) throw new BadRequestError('Invalid credentials')
 		delete (orderer as any).password
@@ -35,7 +35,7 @@ router.post(
 	async (req, res) => {
 		const { email, password } = req.body
 
-		const [candidate] = await candidate_model.findByEmail(email)
+		const [candidate] = await full_candidate_model.findByEmail(email)
 
 		if (!candidate || !(await Password.compare(candidate.password, password))) throw new BadRequestError('Invalid credentials')
 		delete (candidate as any).password

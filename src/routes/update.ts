@@ -2,7 +2,7 @@ import { body, param } from 'express-validator'
 import express from 'express'
 
 import { candidate_updated_pub, orderer_updated_pub } from '../events/pub'
-import { candidate_model, orderer_model } from '../models'
+import { candidate_model, orderer_model, user_model } from '../models'
 
 import { require_auth, validate_request } from 'common/middlewares'
 
@@ -18,12 +18,16 @@ router.patch(
 		const id = req.current_user!.user_id
 		const { name, biography } = req.body
 
-		const [orderer] = await orderer_model.update(id, { name, biography })
-		delete (orderer as any).password
+		const [user] = await user_model.update(id, { name, biography })
+		const [orderer] = await orderer_model.update(id, {})
 
-		await orderer_updated_pub.publish({ id, name, biography })
+		const full_orderer = { ...user, ...orderer }
+		const { updated_at } = full_orderer
+		delete (full_orderer as any).password
 
-		res.status(200).json({ orderer })
+		await orderer_updated_pub.publish({ id, name, biography, updated_at })
+
+		res.status(200).json({ orderer: full_orderer })
 	}
 )
 
@@ -37,12 +41,17 @@ router.patch(
 		const id = req.current_user!.user_id
 		const { name, biography } = req.body
 
-		const [candidate] = await candidate_model.update(id, { name, biography })
+		const [user] = await user_model.update(id, { name, biography })
+		const [candidate] = await candidate_model.update(id, {})
 		delete (candidate as any).password
 
-		await candidate_updated_pub.publish({ id, name, biography })
+		const full_candidate = { ...user, ...candidate }
+		const { updated_at } = full_candidate
+		delete (full_candidate as any).password
 
-		res.status(200).json({ candidate })
+		await candidate_updated_pub.publish({ id, name, biography, updated_at })
+
+		res.status(200).json({ candidate: full_candidate })
 	}
 )
 

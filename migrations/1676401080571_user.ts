@@ -48,61 +48,47 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 	)
 
 	pgm.createFunction(
-		'prevent_insert_into_parent',
-		[],
-		{ language: 'plpgsql', returns: 'TRIGGER' },
-		`
-    BEGIN
-			RAISE EXCEPTION 'Cannot insert into parent table.';
-		END;
-    `
-	)
-
-	pgm.createTrigger('user', 'user_prevent_insert', {
-		when: 'BEFORE',
-		operation: 'INSERT',
-		function: 'prevent_insert_into_parent',
-		level: 'ROW'
-	})
-
-	pgm.createFunction(
 		'update_updated_at',
 		[],
 		{ language: 'plpgsql', returns: 'TRIGGER' },
 		`
     BEGIN
 			NEW.updated_at = NOW() AT TIME ZONE 'utc';
+			
 			RETURN NEW;
 		END;
     `
 	)
 
-	// pgm.createFunction(
-	// 	'check_uniqueness',
-	// 	[],
-	// 	{ language: 'plpgsql', returns: 'TRIGGER' },
-	// 	`
-	//   BEGIN
-	// 		IF EXISTS (
-	// 			SELECT 1
-	// 			FROM auth.user u
-	// 			WHERE
-	// 				u.email = NEW.email
-	// 				OR
-	// 				u.phone = NEW.phone
-	// 		) THEN
-	// 			RAISE EXCEPTION 'Duplicate value detected';
-	// 		END IF;
-	// 		RETURN NEW;
-	// 	END;
-	//   `
-	// )
+	pgm.createTrigger('user', 'updated_at', {
+		when: 'BEFORE',
+		operation: 'UPDATE',
+		function: 'update_updated_at',
+		level: 'ROW'
+	})
+
+	pgm.createFunction(
+		'update_user_updated_at',
+		[],
+		{ language: 'plpgsql', returns: 'TRIGGER' },
+		`
+    BEGIN
+			UPDATE
+				auth.user
+			SET
+				updated_at = NOW() AT TIME ZONE 'utc'
+			WHERE
+				id = OLD.id;
+
+			RETURN NEW;
+		END;
+    `
+	)
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-	// pgm.dropFunction('check_uniqueness', [], { ifExists: true })
+	pgm.dropFunction('update_user_updated_at', [], { ifExists: true })
+	pgm.dropTrigger('user', 'updated_at', { ifExists: true })
 	pgm.dropFunction('update_updated_at', [], { ifExists: true })
-	pgm.dropTrigger('user', 'user_prevent_insert', { ifExists: true })
-	pgm.dropFunction('prevent_insert_into_parent', [], { ifExists: true })
 	pgm.dropTable('user')
 }
