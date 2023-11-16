@@ -1,5 +1,5 @@
-import { database } from 'common/services'
 import { PartialOmit } from 'common/types/utility'
+import { database } from 'common/services'
 
 export interface User {
 	id: string
