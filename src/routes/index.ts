@@ -5,6 +5,7 @@ export * from './refresh'
 
 export * from './findAll'
 export * from './update'
+export * from './avatar'
 
 export * from './activity-area'
 export * from './candidate-area'
