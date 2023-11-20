@@ -1,6 +1,7 @@
 import cookie_parser from 'cookie-parser'
 import express from 'express'
 import 'express-async-errors'
+import cors from 'cors'
 
 import * as routes from './routes'
 
@@ -11,7 +12,7 @@ const app = express()
 
 app.set('trust proxy', true)
 
-app.use(express.json(), cookie_parser())
+app.use(express.json(), cookie_parser(), cors())
 
 app.use(Object.values(routes))
 

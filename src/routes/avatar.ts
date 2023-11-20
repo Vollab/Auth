@@ -5,8 +5,7 @@ import fs from 'fs'
 import { avatar_model } from '../models'
 
 import { require_auth, transaction } from 'common/middlewares'
-import { BadRequestError } from 'common/errors'
-import { UploadError } from 'common/errors/upload'
+import { BadRequestError, UploadError } from 'common/errors'
 
 // https://medium.com/swlh/how-to-implement-image-upload-using-express-and-multer-postgresql-c6de64679f2
 // https://blog.rocketseat.com.br/upload-de-imagens-no-s3-da-aws-com-node-js/
