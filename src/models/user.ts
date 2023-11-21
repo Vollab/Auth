@@ -1,3 +1,4 @@
+import { UserType } from 'common/types/session-payload'
 import { PartialOmit } from 'common/types/utility'
 import { database } from 'common/services'
 
@@ -10,6 +11,10 @@ export interface User {
 	password: string
 	updated_at: Date
 	created_at: Date
+}
+
+export interface UserWithRole extends User {
+	role: UserType
 }
 
 class UserModel {
@@ -40,6 +45,30 @@ class UserModel {
 				phone = $1
 			;`,
 			[phone]
+		)
+	}
+
+	async findByEmailWithRole(email: User['email']) {
+		return this.db.query<UserWithRole>(
+			`
+			SELECT
+				u.*,
+				CASE
+					WHEN o.id IS NOT NULL THEN 'orderer'
+					WHEN c.id IS NOT NULL THEN 'candidate'
+				END role
+			FROM
+				auth.user u
+			LEFT JOIN
+				auth.orderer o
+			USING (id)
+			LEFT JOIN
+				auth.candidate c
+			USING (id)
+			WHERE
+				email = $1
+			;`,
+			[email]
 		)
 	}
 
