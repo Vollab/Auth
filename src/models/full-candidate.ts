@@ -36,6 +36,33 @@ class FullCandidateModel {
 		)
 	}
 
+	async findByIdWithActivityAreas(id: FullCandidate['id']) {
+		return this.db.query<FullCandidateWithActivityAreas>(
+			`
+			SELECT
+				*
+			FROM
+				auth.full_candidate c
+			LEFT JOIN (
+				SELECT
+					candidate_id id, array_agg(name) activity_areas
+				FROM
+					auth.candidate_area
+				JOIN
+					auth.activity_area
+				ON
+					id = activity_area_id
+				GROUP BY
+					candidate_id
+			) a
+			USING (id)
+			WHERE
+				id = $1
+			;`,
+			[id]
+		)
+	}
+
 	async findByEmail(email: FullCandidate['email']) {
 		return this.db.query<FullCandidate>(
 			`

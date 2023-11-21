@@ -20,6 +20,52 @@ export interface UserWithRole extends User {
 class UserModel {
 	constructor(private db: typeof database) {}
 
+	async findAllWithRole() {
+		return this.db.query<UserWithRole>(
+			`
+			SELECT
+				u.*,
+				CASE
+					WHEN o.id IS NOT NULL THEN 'orderer'
+					WHEN c.id IS NOT NULL THEN 'candidate'
+				END role
+			FROM
+				auth.user u
+			LEFT JOIN
+				auth.orderer o
+			USING (id)
+			LEFT JOIN
+				auth.candidate c
+			USING (id)
+			;`,
+			[]
+		)
+	}
+
+	async findByIdWithRole(id: User['id']) {
+		return this.db.query<UserWithRole>(
+			`
+			SELECT
+				u.*,
+				CASE
+					WHEN o.id IS NOT NULL THEN 'orderer'
+					WHEN c.id IS NOT NULL THEN 'candidate'
+				END role
+			FROM
+				auth.user u
+			LEFT JOIN
+				auth.orderer o
+			USING (id)
+			LEFT JOIN
+				auth.candidate c
+			USING (id)
+			WHERE
+				id = $1
+			;`,
+			[id]
+		)
+	}
+
 	async findByEmail(email: User['email']) {
 		return this.db.query<User>(
 			`
