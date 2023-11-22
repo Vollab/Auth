@@ -16,8 +16,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 			},
 			file_name: {
 				type: 'text',
-				notNull: true,
-				unique: true
+				notNull: true
 			},
 			file_path: {
 				type: 'text',
