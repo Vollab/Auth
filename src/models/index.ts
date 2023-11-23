@@ -1,4 +1,5 @@
 export * from './user'
+export * from './link'
 export * from './avatar'
 export * from './orderer'
 export * from './candidate'
