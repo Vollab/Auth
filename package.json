@@ -1,43 +1,42 @@
 {
-	"name": "auth",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"start": "tsnd --rs --poll src/index.ts",
-		"migrate:create": "node-pg-migrate -j ts create",
-		"migrate:up": "ts-node ../node_modules/.bin/node-pg-migrate -j ts -d PG_URL -s auth --migrations-schema auth --create-schema up",
-		"migrate:down": "ts-node ../node_modules/.bin/node-pg-migrate -j ts -d PG_URL -s auth --migrations-schema auth --create-schema down"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Vollab/auth.git"
-	},
-	"author": "",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/Vollab/auth/issues"
-	},
-	"homepage": "https://github.com/Vollab/auth#readme",
-	"dependencies": {
-		"cookie-parser": "^1.4.6",
-		"cors": "^2.8.5",
-		"express": "^4.18.2",
-		"express-async-errors": "^3.1.1",
-		"express-validator": "^6.14.2",
-		"jsonwebtoken": "^9.0.0",
-		"multer": "^1.4.5-lts.1",
-		"node-pg-migrate": "^6.2.2",
-		"uuid": "^9.0.0"
-	},
-	"devDependencies": {
-		"@types/cookie-parser": "^1.4.3",
-		"@types/cors": "^2.8.16",
-		"@types/express": "^4.17.14",
-		"@types/jsonwebtoken": "^8.5.9",
-		"@types/multer": "^1.4.10",
-		"@types/uuid": "^9.0.0",
-		"ts-node-dev": "^2.0.0",
-		"types-vollab": "^1.0.5"
-	}
+  "name": "auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsnd --rs --poll src/index.ts",
+    "migrate:create": "node-pg-migrate -j ts create",
+    "migrate:up": "ts-node ../node_modules/.bin/node-pg-migrate -j ts -d PG_URL -s auth --migrations-schema auth --create-schema up",
+    "migrate:down": "ts-node ../node_modules/.bin/node-pg-migrate -j ts -d PG_URL -s auth --migrations-schema auth --create-schema down"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vollab/auth.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vollab/auth/issues"
+  },
+  "homepage": "https://github.com/Vollab/auth#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "express-validator": "^6.14.2",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "node-pg-migrate": "^6.2.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.3",
+    "@types/cors": "^2.8.16",
+    "@types/express": "^4.17.14",
+    "@types/jsonwebtoken": "^8.5.9",
+    "@types/multer": "^1.4.10",
+    "@types/uuid": "^9.0.0",
+    "ts-node-dev": "^2.0.0"
+  }
 }
