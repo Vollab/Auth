@@ -34,7 +34,7 @@ class CandidateAreaModel {
 		return this.db.query<CandidateArea>(
 			`
 			INSERT INTO
-				auth.candidate_area (candidate_id, activity_area_id)
+				auth.candidate_area (${keys.join(', ')})
 			VALUES
 				${placeholders}
 			RETURNING

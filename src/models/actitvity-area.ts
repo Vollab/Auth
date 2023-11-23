@@ -4,8 +4,8 @@ import { database } from 'common/services'
 export interface ActivityArea {
 	id: string
 	name: string
-	updated_at: string
-	created_at: string
+	updated_at: Date
+	created_at: Date
 }
 
 class ActivityAreaModel {

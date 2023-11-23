@@ -43,18 +43,31 @@ class FullCandidateModel {
 				*
 			FROM
 				auth.full_candidate c
-			LEFT JOIN (
+			LEFT JOIN LATERAL (
 				SELECT
 					candidate_id id, array_agg(name) activity_areas
 				FROM
 					auth.candidate_area
 				JOIN
-					auth.activity_area
+					auth.activity_area a
 				ON
-					id = activity_area_id
+					a.id = activity_area_id
+				WHERE
+					c.id = candidate_id
 				GROUP BY
 					candidate_id
 			) a
+			USING (id)
+			LEFT JOIN LATERAL (
+				SELECT
+					user_id id, array_agg(json_build_object('id', id, 'url', url, 'text', text)) links
+				FROM
+					auth.link
+				WHERE
+					c.id = user_id
+				GROUP BY
+					user_id
+			) l
 			USING (id)
 			WHERE
 				id = $1

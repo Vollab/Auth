@@ -35,6 +35,20 @@ router.get('/api/orderers', require_auth(['candidate', 'orderer']), async (req, 
 	res.status(200).json({ orderers })
 })
 
+router.get(
+	'/api/orderers/:orderer_id',
+	param('orderer_id', 'orderer id must be a valid UUID').isUUID().notEmpty(),
+	require_auth(['candidate', 'orderer']),
+	async (req, res) => {
+		const { orderer_id } = req.params
+
+		const [orderer] = await full_orderer_model.findById(orderer_id)
+		if (!orderer) throw new NotFoundError('Orderer not found!')
+
+		delete (orderer as any).password
+		res.status(200).json({ orderer })
+	}
+)
 router.get('/api/candidates', require_auth(['candidate', 'orderer']), async (req, res) => {
 	const candidates = await full_candidate_model.findAllWithActivityAreas()
 
