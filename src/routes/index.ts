@@ -5,6 +5,9 @@ export * from './refresh'
 
 export * from './find'
 export * from './update'
+
+export * from './link'
+
 export * from './avatar'
 
 export * from './activity-area'
