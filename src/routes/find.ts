@@ -8,9 +8,19 @@ import { NotFoundError } from 'common/errors'
 
 const router = express.Router()
 
+router.get('/api/current-user', require_auth(['candidate', 'orderer']), async (req, res) => {
+	const user_id = req.current_user!.user_id
+
+	const [user] = await user_model.findByIdWithRole(user_id)
+	delete (user as any).password
+
+	res.status(200).json({ user })
+})
+
 router.get('/api/users', require_auth(['candidate', 'orderer']), async (req, res) => {
 	const users = await user_model.findAllWithRole()
 	users.forEach(u => delete (u as any).password)
+
 	res.status(200).json({ users })
 })
 
@@ -23,8 +33,8 @@ router.get(
 
 		const [user] = await user_model.findByIdWithRole(user_id)
 		if (!user) throw new NotFoundError('User not found!')
-
 		delete (user as any).password
+
 		res.status(200).json({ user })
 	}
 )
@@ -32,6 +42,7 @@ router.get(
 router.get('/api/orderers', require_auth(['candidate', 'orderer']), async (req, res) => {
 	const orderers = await full_orderer_model.findAll()
 	orderers.forEach(o => delete (o as any).password)
+
 	res.status(200).json({ orderers })
 })
 
@@ -44,15 +55,15 @@ router.get(
 
 		const [orderer] = await full_orderer_model.findById(orderer_id)
 		if (!orderer) throw new NotFoundError('Orderer not found!')
-
 		delete (orderer as any).password
+
 		res.status(200).json({ orderer })
 	}
 )
 router.get('/api/candidates', require_auth(['candidate', 'orderer']), async (req, res) => {
 	const candidates = await full_candidate_model.findAllWithActivityAreas()
-
 	candidates.forEach(c => delete (c as any).password)
+
 	res.status(200).json({ candidates })
 })
 
@@ -65,8 +76,8 @@ router.get(
 
 		const [candidate] = await full_candidate_model.findByIdWithActivityAreas(candidate_id)
 		if (!candidate) throw new NotFoundError('Candidate not found!')
-
 		delete (candidate as any).password
+
 		res.status(200).json({ candidate })
 	}
 )

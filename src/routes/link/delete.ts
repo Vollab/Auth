@@ -8,7 +8,7 @@ import { require_auth, validate_request } from 'common/middlewares'
 const router = express.Router()
 
 router.delete(
-	'/api/users/links/:link_id',
+	'/api/current-user/links/:link_id',
 	require_auth(['candidate', 'orderer']),
 	param('link_id', 'link_id must be a valid UUID').isUUID(),
 	validate_request,

@@ -6,6 +6,7 @@ import { avatar_model } from '../models'
 
 import { require_auth, transaction } from 'common/middlewares'
 import { BadRequestError, UploadError } from 'common/errors'
+import { param } from 'express-validator'
 
 // https://medium.com/swlh/how-to-implement-image-upload-using-express-and-multer-postgresql-c6de64679f2
 // https://blog.rocketseat.com.br/upload-de-imagens-no-s3-da-aws-com-node-js/
@@ -33,7 +34,7 @@ const upload = (req: any, res: any, next: any) => {
 }
 const router = express.Router()
 
-router.get('/api/avatar', require_auth(['candidate', 'orderer']), async (req, res) => {
+router.get('/api/current-user/avatar', require_auth(['candidate', 'orderer']), async (req, res) => {
 	const user_id = req.current_user!.user_id
 
 	const [{ file_path, mime_type }] = await avatar_model.findById(user_id)
@@ -41,7 +42,20 @@ router.get('/api/avatar', require_auth(['candidate', 'orderer']), async (req, re
 	return res.status(200).setHeader('Content-Type', mime_type).sendFile(file_path)
 })
 
-router.put('/api/avatar', require_auth(['candidate', 'orderer']), upload, transaction, async (req, res) => {
+router.get(
+	'/api/users/:user_id/avatar',
+	param('user_id', 'user id must be a valid UUID').isUUID().notEmpty(),
+	require_auth(['candidate', 'orderer']),
+	async (req, res) => {
+		const { user_id } = req.params
+
+		const [{ file_path, mime_type }] = await avatar_model.findById(user_id)
+
+		return res.status(200).setHeader('Content-Type', mime_type).sendFile(file_path)
+	}
+)
+
+router.put('/api/current-user/avatar', require_auth(['candidate', 'orderer']), upload, transaction, async (req, res) => {
 	const user_id = req.current_user!.user_id
 	const { filename: file_name, path: file_path, mimetype: mime_type, size } = req.file!
 
