@@ -1,70 +1,67 @@
 import express from 'express'
-import multer from 'multer'
 import fs from 'fs'
-
+import { upload } from '../middlewares/upload'
 import { avatar_model } from '../models'
 
 import { require_auth, transaction } from 'common/middlewares'
-import { BadRequestError, UploadError } from 'common/errors'
 import { param } from 'express-validator'
+import { toBase64 } from '../utils/toBase64'
 
-// https://medium.com/swlh/how-to-implement-image-upload-using-express-and-multer-postgresql-c6de64679f2
-// https://blog.rocketseat.com.br/upload-de-imagens-no-s3-da-aws-com-node-js/
-
-const MAX_SIZE = 2 * 1024 * 1024 // 2Mb
-const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, '/app/auth/uploads/')
-	},
-	filename: function (req, file, cb) {
-		cb(null, new Date().valueOf() + '_' + file.originalname)
-	}
-})
-const fileFilter = (req: any, file: any, cb: any) => {
-	const allowedMimes = ['image/jpeg', 'image/pjpeg', 'image/png', 'image/gif']
-
-	if (allowedMimes.includes(file.mimetype)) cb(null, true)
-	else cb(new BadRequestError('Invalid file type'))
-}
-const upload = (req: any, res: any, next: any) => {
-	multer({ storage, limits: { fileSize: MAX_SIZE }, fileFilter }).single('avatar')(req, res, err => {
-		if (err instanceof multer.MulterError) next(new UploadError(err))
-		next(err)
-	})
-}
 const router = express.Router()
 
-router.get('/api/current-user/avatar', require_auth(['candidate', 'orderer']), async (req, res) => {
-	const user_id = req.current_user!.user_id
-
-	const [{ file_path, mime_type }] = await avatar_model.findById(user_id)
-
-	return res.status(200).setHeader('Content-Type', mime_type).sendFile(file_path)
-})
-
 router.get(
-	'/api/users/:user_id/avatar',
-	param('user_id', 'user id must be a valid UUID').isUUID().notEmpty(),
-	require_auth(['candidate', 'orderer']),
-	async (req, res) => {
-		const { user_id } = req.params
+  '/api/current-user/avatar',
+  require_auth(['candidate', 'orderer']),
+  async (req, res) => {
+    const user_id = req.current_user!.user_id
 
-		const [{ file_path, mime_type }] = await avatar_model.findById(user_id)
+    const [{ file_path, mime_type }] = await avatar_model.findById(user_id)
 
-		return res.status(200).setHeader('Content-Type', mime_type).sendFile(file_path)
-	}
+    return res.status(200).json({ avatar: toBase64({ file_path, mime_type }) })
+  }
 )
 
-router.put('/api/current-user/avatar', require_auth(['candidate', 'orderer']), upload, transaction, async (req, res) => {
-	const user_id = req.current_user!.user_id
-	const { filename: file_name, path: file_path, mimetype: mime_type, size } = req.file!
+router.get(
+  '/api/users/:user_id/avatar',
+  param('user_id', 'user id must be a valid UUID').isUUID().notEmpty(),
+  require_auth(['candidate', 'orderer']),
+  async (req, res) => {
+    const { user_id } = req.params
 
-	const [old_avatar] = await avatar_model.delete(user_id)
-	const [avatar] = await avatar_model.insert({ id: user_id, file_name, file_path, mime_type, size })
+    const [{ file_path, mime_type }] = await avatar_model.findById(user_id)
 
-	if (old_avatar.file_name != 'default_avatar') fs.unlinkSync(old_avatar.file_path)
+    return res.status(200).json({ avatar: toBase64({ file_path, mime_type }) })
+  }
+)
 
-	res.status(200).json({ avatar })
-})
+router.put(
+  '/api/current-user/avatar',
+  require_auth(['candidate', 'orderer']),
+  upload,
+  transaction,
+  async (req, res) => {
+    const user_id = req.current_user!.user_id
+    const {
+      filename: file_name,
+      path: file_path,
+      mimetype: mime_type,
+      size
+    } = req.file!
+
+    const [old_avatar] = await avatar_model.delete(user_id)
+    const [avatar] = await avatar_model.insert({
+      id: user_id,
+      file_name,
+      file_path,
+      mime_type,
+      size
+    })
+
+    if (old_avatar.file_name != 'default_avatar')
+      fs.unlinkSync(old_avatar.file_path)
+
+    res.status(200).json({ avatar })
+  }
+)
 
 export { router as avatar_router }
