@@ -22,9 +22,13 @@ services:
       - LOG_LEVEL=DEBUG
     volumes:
       - ./auth/migrations:/app/auth/migrations
+      - uploads:/app/auth/uploads
       - ./auth/src:/app/auth/src
       - ./common:/app/common
     depends_on:
       - auth_redis
       - nats
       - db
+
+volumes:
+  uploads:
