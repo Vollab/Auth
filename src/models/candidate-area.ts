@@ -23,6 +23,22 @@ class CandidateAreaModel {
 		)
 	}
 
+	async findByCandidateIdAndActivityAreaId(candidate_id: CandidateArea['candidate_id'], activity_area_id: CandidateArea['activity_area_id']) {
+		return this.db.query<CandidateArea>(
+			`
+			SELECT
+				*
+			FROM
+				auth.candidate_area
+			WHERE
+        candidate_id = $1
+			AND
+			activity_area_id = $2
+			;`,
+			[candidate_id, activity_area_id]
+		)
+	}
+
 	async insert(candidate_areas: AtLeastOne<CandidateArea>): Promise<CandidateArea[]>
 	async insert(...candidate_areas: AtLeastOne<CandidateArea>): Promise<CandidateArea[]>
 	async insert(candidate_area: AtLeastOne<CandidateArea> | CandidateArea) {

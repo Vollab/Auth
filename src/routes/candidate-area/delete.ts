@@ -2,7 +2,6 @@ import { param } from 'express-validator'
 import express from 'express'
 
 import { candidate_area_model } from '../../models'
-import { candidate_area_deleted_pub } from '../../events/pub'
 
 import { require_auth, validate_request } from 'common/middlewares'
 
@@ -18,8 +17,6 @@ router.delete(
 		const { activity_area_id } = req.params
 
 		const [candidate_area] = await candidate_area_model.delete(candidate_id, activity_area_id)
-
-		await candidate_area_deleted_pub.publish({ candidate_id, activity_area_id })
 
 		res.status(200).json({ candidate_area })
 	}

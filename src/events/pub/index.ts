@@ -1,5 +1,3 @@
-export * from './candidate-area-created'
-export * from './candidate-area-deleted'
 export * from './candidate-created'
 export * from './candidate-updated'
 export * from './orderer-created'

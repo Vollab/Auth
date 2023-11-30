@@ -2,9 +2,9 @@ import { param } from 'express-validator'
 import express from 'express'
 
 import { candidate_area_model } from '../../models'
-import { candidate_area_created_pub } from '../../events/pub'
 
 import { require_auth, validate_request } from 'common/middlewares'
+import { ConflictError } from 'common/errors'
 
 const router = express.Router()
 
@@ -17,9 +17,10 @@ router.post(
 		const candidate_id = req.current_user!.user_id
 		const { activity_area_id } = req.params
 
-		const [candidate_area] = await candidate_area_model.insert({ candidate_id, activity_area_id })
+		const [has_candidate_area] = await candidate_area_model.findByCandidateIdAndActivityAreaId(candidate_id, activity_area_id)
+		if (has_candidate_area) throw new ConflictError('Activity already exists')
 
-		await candidate_area_created_pub.publish({ candidate_id, activity_area_id })
+		const [candidate_area] = await candidate_area_model.insert({ candidate_id, activity_area_id })
 
 		res.status(201).json({ candidate_area })
 	}
