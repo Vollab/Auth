@@ -3,7 +3,7 @@ import express from 'express'
 
 import { candidate_created_pub, orderer_created_pub } from '../events/pub'
 import { candidate_model, orderer_model, user_model } from '../models'
-import { Password } from '../services'
+import { Password, Session } from '../services'
 
 import { validate_request } from 'common/middlewares'
 
@@ -43,6 +43,7 @@ router.post(
 
 		await orderer_created_pub.publish({ id, email, name, created_at, updated_at })
 
+		await Session.create(res, user.id, 'orderer')
 		res.status(201).json({ orderer: full_orderer })
 	}
 )
@@ -71,6 +72,7 @@ router.post(
 
 		await candidate_created_pub.publish({ id, email, name, created_at, updated_at })
 
+		await Session.create(res, user.id, 'candidate')
 		res.status(201).json({ candidate: full_candidate })
 	}
 )
