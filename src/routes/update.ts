@@ -5,6 +5,7 @@ import { candidate_updated_pub, orderer_updated_pub } from '../events/pub'
 import { candidate_model, orderer_model, user_model } from '../models'
 
 import { require_auth, validate_request } from 'common/middlewares'
+import { NotFoundError } from 'common/errors'
 
 const router = express.Router()
 
@@ -20,6 +21,7 @@ router.patch(
 
 		const [user] = await user_model.update(id, { name, biography })
 		const [orderer] = await orderer_model.update(id, {})
+		if (!orderer) throw new NotFoundError('Orderer not found!')
 
 		const full_orderer = { ...user, ...orderer }
 		const { updated_at } = full_orderer
@@ -43,7 +45,7 @@ router.patch(
 
 		const [user] = await user_model.update(id, { name, biography })
 		const [candidate] = await candidate_model.update(id, {})
-		delete (candidate as any).password
+		if (!candidate) throw new NotFoundError('Candidate not found!')
 
 		const full_candidate = { ...user, ...candidate }
 		const { updated_at } = full_candidate
