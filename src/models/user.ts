@@ -135,7 +135,7 @@ class UserModel {
 	}
 
 	async update(id: User['id'], user: PartialOmit<User, 'id' | 'email' | 'updated_at' | 'created_at'>) {
-		const entries = Object.entries(user)
+		const entries = Object.entries(user).filter(e => e[1])
 		if (entries.length === 0) return []
 		const keys = entries.map((e, i) => `${e[0]} = $${i + 2}`)
 		const values = entries.map(e => e[1])
