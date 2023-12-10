@@ -25,7 +25,7 @@ class CandidateModel {
 	}
 
 	async update(id: Candidate['id'], candidate: PartialOmit<Candidate, 'id'>) {
-		const entries = Object.entries(candidate).filter(e => e[1])
+		const entries = Object.entries(candidate).filter(e => e[1] != null)
 		if (entries.length === 0) return []
 		const keys = entries.map((e, i) => `${e[0]} = $${i + 2}`)
 		const values = entries.map(e => e[1])
